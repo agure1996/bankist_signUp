@@ -1,14 +1,30 @@
 'use strict';
 
 ///////////////////////////////////////
+
 const modal = document.querySelector('.modal');
 const overlay = document.querySelector('.overlay');
 const btnCloseModal = document.querySelector('.btn--close-modal');
 const btnsOpenModal = document.querySelectorAll('.btn--show-modal');
+
 ///////////////////////////////////////
+
 const learnMoreButton = document.querySelector('.btn--scroll-to');
 const section1 = document.querySelector('#section--1');
+
 ///////////////////////////////////////
+
+const tabs = document.querySelectorAll('.operations__tab');
+
+//get the container
+const tabsContainer = document.querySelector('.operations__tab-container');
+
+//get all 3 contents
+const tabsContent = document.querySelectorAll('.operations__content');
+
+///////////////////////////////////////
+
+const nav = document.querySelector('.nav');
 
 ///////////////////////////////////////
 // Modal window
@@ -25,6 +41,7 @@ const closeModal = e => {
 };
 
 //switch the for-loop into a for-each loop instead for cleaner code
+
 btnsOpenModal.forEach(btn => btn.addEventListener('click', openModal));
 
 btnCloseModal.addEventListener('click', closeModal);
@@ -38,11 +55,16 @@ document.addEventListener('keydown', function (e) {
 });
 
 //////////////////////////////////////////////////////////
-/* Page Navigation - using event delegation
+
+/* 
+
+  Page Navigation - using event delegation
 
   While this method works its not efficient as if we have
   over 1000 navlinks this will go through all of them, this
-  will make the */
+  will make the 
+  
+  */
 
 // const navLink = document.querySelectorAll('.nav__links')
 
@@ -59,49 +81,59 @@ document.addEventListener('keydown', function (e) {
 // }))
 
 //////////////////////////////////////////////////////////
-/* Event delegation will ensure 
-  that instead of the event listener being attached to every navlink element which is memory inefficient and will affect performance */
+/* 
+
+  Event delegation will ensure 
+  that instead of the event listener being attached to every navlink element which is memory inefficient and will affect performance 
+
+*/
 
 //get the parent element instead of the navlinks, which if you look at the html will be nav__links
+
 const navLinks = document.querySelector('.nav__links');
 navLinks.addEventListener('click', e => {
   e.preventDefault();
 
-  //Matching strategy - ignore clicks that basically dont happen in the navlinks
-  //match the event listener to the parent element of the nav__link class we want
-  if (e.target.classList.contains('nav__link')) {
+  /*
+  
+    Matching strategy - ignore clicks that basically dont happen in the navlinks
+    match the event listener to the parent element of the nav__link class we want
 
+  */
+
+  if (e.target.classList.contains('nav__link')) {
     //assign the href of said navlink to value and queryselector it, then scroll into section
     const id = e.target.getAttribute('href');
-    document.querySelector(id).scrollIntoView({behavior:'smooth'})
+    document.querySelector(id).scrollIntoView({ behavior: 'smooth' });
   }
 });
 
 //////////////////////////////////////////////////////////
 
-const h1 = document.querySelector('h1')
+const h1 = document.querySelector('h1');
 
-// console.log(h1.querySelectorAll('.highlights'));
-// console.log(h1.childNodes);
-// console.log(h1.children);
+/*
 
-
-// console.log(h1.parentNode);
-// console.log(h1.parentElement);
-
-//an example of getting the header and manipulating its style
-// h1.closest('.header').style.background = 'var(--gradient-primary)';
-
-h1.parentElement.children
-console.log([...h1.parentElement.children]);
+ console.log(h1.querySelectorAll('.highlights'));
+ console.log(h1.childNodes);
+ console.log(h1.children);
 
 
-//this is how we dom traverse :) 
-[...h1.parentElement.children].forEach(el => {
-  if(el != h1)
-  el.style.background = 'pink'
-})
+ console.log(h1.parentNode);
+ console.log(h1.parentElement);
 
+ an example of getting the header and manipulating its style
+ h1.closest('.header').style.background = 'var(--gradient-primary)';
+
+*/
+// h1.parentElement.children
+// console.log([...h1.parentElement.children]);
+
+//this is how we dom traverse :)
+// [...h1.parentElement.children].forEach(el => {
+//   if(el != h1)
+//   el.style.background = 'pink'
+// })
 
 //////////////////////////////////////////////////////////
 //Implementing Smooth Scrolling for the learnMore Button
@@ -149,53 +181,295 @@ console.log([...h1.parentElement.children]);
 
 //////////////////////////////////////////////////////////
 
-
 //////////////////////////////////////////////////////////
-//Tabbed component 
+//Tabbed component
 
 //get all tabs
-const tabs = document.querySelectorAll('.operations__tab')
-
-//get the container
-const tabsContainer = document.querySelector('.operations__tab-container');
-
-//get all 3 contents
-const tabsContent = document.querySelectorAll('.operations__content');
-
 
 //use event delegation on the tabs parent element which is the container.
-tabsContainer.addEventListener('click', (e) => {
-e.preventDefault();
+tabsContainer.addEventListener('click', e => {
+  e.preventDefault();
 
-//to make sure we are not clicking just the span or the button which have different parent elements, we look for the closest container parent element that we are using
-const buttonClicked = e.target.closest('.operations__tab')
+  //to make sure we are not clicking just the span or the button which have different parent elements, we look for the closest container parent element that we are using
+  const buttonClicked = e.target.closest('.operations__tab');
 
-console.log(buttonClicked);
+  // console.log(buttonClicked);
 
-//if we click the button - ternary operator
-const ifButtonClicked = () =>{
+  //if we click the button - ternary operator
+  const ifButtonClicked = () => {
+    //guard clause - google what that is
+    if (!buttonClicked) return;
 
-  //guard clause - google what that is
-    if(!buttonClicked) return ;
+    //if button is clicked
+    tabs.forEach(tab => {
+      //remove active from all tabs
+      tab.classList.remove('operations__tab--active');
+
+      //remove content of tab that is not active
+      tabsContent.forEach(content =>
+        content.classList.remove('operations__content--active')
+      );
+
+      //tab that was clicked? add active css
+      buttonClicked.classList.add('operations__tab--active');
+
+      //we did it like this because we want only one active tab at a time
+      //now we want to active the content area associated with the tab selected
+      document
+        .querySelector(`.operations__content--${buttonClicked.dataset.tab}`)
+        .classList.add(`operations__content--active`);
+    });
+  };
+  ifButtonClicked();
+});
+//////////////////////////////////////////////////////////////////////////
+/**
+ * Creating the Menu fade animation:
+ * will be using event delegation so we use the parent element of menu and logo which is the nav itself
+ */
+
+//making a method to handle opacity
+
+const handleOpacity = function (e) {
+  //I tried to use shorthand method but since we dont have anything to point to as this currently we use old style function instead of shorthand
+  if (e.target.classList.contains('nav__link')) {
+    const link = e.target;
+
+    const siblings = link.closest('.nav').querySelectorAll('.nav__link');
+
+    const logo = link.closest('.nav').querySelector('img');
+
+    siblings.forEach(el => {
+      if (el != link) el.style.opacity = this;
+    });
+    logo.style.opacity = this;
+  }
+};
+
+//passing argument into the handle opacity so we can use the 'this' function above
+nav.addEventListener('mouseover', handleOpacity.bind(0.5));
+
+nav.addEventListener('mouseout', handleOpacity.bind(1));
+
+//////////////////////////////////////////////////////////////////////////
+/** Applying sticky to navbar
+ *
+ * we can do scrollevent (compare Y of getboundclientrect vs section y offset)
+ *
+ * or even better. . . we use intersection observer API
+ *
+ */
+
+// const observerCallback = function (entries, observer) {
+// /**
+//  * entries - array of threshold entries
+//  */
+
+// entries.forEach(entry => {
+//   console.log(entry);
+// })
+// }
+
+// const observerOptions = {
+//   /**  root: the element target element is intersecting. with root being null we observe our target
+//    *  intersecting the entire viewport
+//     */
+//   root: null,
+//   threshold : 0.1
+// }
+
+// const observer = new IntersectionObserver(observerCallback,observerOptions)
+// observer.observe(section1)
+
+const header = document.querySelector('.header');
+
+const navHeight = nav.getBoundingClientRect().height;
+
+const stickyNav = function (entries) {
+  const [entry] = entries;
+  // console.log(entry);
+
+  if (!entry.isIntersecting) nav.classList.add('sticky');
+  else nav.classList.remove('sticky');
+};
+const headObserver = new IntersectionObserver(stickyNav, {
+  root: null,
+  threshold: 0,
+  rootMargin: `-${navHeight}px`,
+});
+
+headObserver.observe(header);
+
+//////////////////////////////////////////////////////////
+/** Applying intersection observer to section
+ *
+ * we can do scrollevent (compare Y of getboundclientrect vs section y offset)
+ *
+ *
+ */
+
+const sectionWork = function(){
 
 
-  //if button is clicked 
-  tabs.forEach(tab =>{
-    //remove active from all tabs
-    tab.classList.remove('operations__tab--active')
-    //tab that was clicked? add active css
-    buttonClicked.classList.add('operations__tab--active')
+const allSections = document.querySelectorAll('.section');
 
-    //we did it like this because we want only one active tab at a time
-  })
+const revealSection = (entries, observer) => {
+  const [entry] = entries;
+  // console.log(entry);
+  if (!entry.isIntersecting) return;
+
+  entry.target.classList.remove('section--hidden');
+  observer.unobserve(entry.target);
+};
+
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.15,
+});
+
+allSections.forEach(function (sect) {
+  sectionObserver.observe(sect);
+  sect.classList.add('section--hidden')
+});
+};
+
+sectionWork();
+
+//////////////////////////////////////////////////////////
+//Lazy Loading Images for performance (for people will low specs)
+
+const imgTarget = document.querySelectorAll('img[data-src]');
+// console.log(imgTarget);
+
+const loadImg = function (entries, observer) {
+  const [entry] = entries;
+
+  // console.log(entry);
+
+  if (!entry.isIntersecting) return;
+  entry.target.src = entry.target.dataset.src;
+
+  //we will only remove blur filter when the page and images have finished loading
+
+  entry.target.addEventListener('load', () => {
+    entry.target.classList.remove('lazy-img');
+  });
+
+  //to prevent memory leak since we dont need to observe no more
+  observer.unobserve(entry.target);
+};
+
+const imgObserver = new IntersectionObserver(loadImg, {
+  root: null,
+  threshold: 0,
+  rootMargin: '200px',
+});
+
+imgTarget.forEach(img => imgObserver.observe(img));
+
+////////////////////////////////////////////////////////
+
+//setting slider with all functionality associated with slide
+const slider = function(){
+
+
+const slides = document.querySelectorAll('.slide');
+const sliderBtnLeft = document.querySelector('.slider__btn--left');
+const sliderBtnRight = document.querySelector('.slider__btn--right');
+let currSlide = 0;
+const maxSlides = slides.length;
+const dotsContainer = document.querySelector('.dots');
+
+
+
+const createDots = function () {
+  slides.forEach((_, i) => {
+    dotsContainer.insertAdjacentHTML(
+      'beforeend',
+      `<button class="dots__dot" data-slide="${i}"></button>`
+    );
+  });
+};
+
+
+const setActiveDot = function (slide){
+ const dots = document.querySelectorAll('.dots__dot')
+ dots.forEach(dot => dot.classList.remove('dots__dot--active'))
+  
+ document.querySelector(`.dots__dot[data-slide="${slide}"]`)
+ .classList.add('dots__dot--active')
 }
-ifButtonClicked();
+
+const goToSlide = function (slide) {
+  slides.forEach((s, i) => {
+    s.style.transform = `translateX(${100 * (i - slide)}%)`;
+    //slide 1 - 2 - 3 - 4
+    //      0% - 100% - 200% - 300%
+  });
+};
+
+//setting up initialiser
+const init = () =>{
+  //upon page loading start at slide 0;
+  goToSlide(0);
+  createDots();
+  setActiveDot(0)
+  
+  }
+  init();
+
+//previous slide function put into a method name for clean code
+
+const prevSlide = function () {
+  if (currSlide === 0) {
+    currSlide = maxSlides - 1;
+  } else {
+    currSlide--;
+  }
+  goToSlide(currSlide);
+  setActiveDot(currSlide)
+};
+
+//next slide function put into a method name for clean code
+const nextSlide = function () {
+  if (currSlide === maxSlides - 1) {
+    currSlide = 0;
+  } else {
+    currSlide++;
+  }
+  goToSlide(currSlide);
+  setActiveDot(currSlide);
+};
+
+//call next and prev slide function like this for clean code format
+sliderBtnLeft.addEventListener('click', prevSlide);
+sliderBtnRight.addEventListener('click', nextSlide);
+
+//also add the keyboard event listener
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowLeft') prevSlide();
+  e.key === 'ArrowRight' && nextSlide();
+});
 
 
+//adding another event handler to parent element of the dots, which is the dot container
+const dotClicked = function(e) {
+  
+  //if target clicked contains dots__dot class
+  if (e.target.classList.contains('dots__dot')){
+    
+    //destructure target to get the slide
+    const { slide } = e.target.dataset;
+  goToSlide(slide);
+  setActiveDot(slide);
 
+}}
 
-})
+dotsContainer.addEventListener('click', dotClicked)
 
+};
+
+slider();
 //////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////
